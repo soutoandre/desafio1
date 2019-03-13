@@ -1,0 +1,244 @@
+## Binario ddb1c9
+
+- Escrito em go
+- Simples web server
+- Github.com/gallois/http_challenge/http.go
+- porta 8011
+- quando é escrito algo na url, o que foi escrito aparece no browser.
+
+Executei o strace para rastrear as chamadas que o processo realiza, abaixo se podemos ver que o binario abre  uma porta tcp .
+strace ./ddb1c9 
+.....
+bind(3, {sa_family=AF_INET6, sin6_port=htons(8011), inet_pton(AF_INET6, "::", &sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, 28) = 0
+
+
+### Após descobrir o numero do processo, executei outro comando lsof para verificar quais eram os descritores abertos.
+$ ps -ef|grep ddb1c9
+
+
+lsof -p 16226
+
+COMMAND   PID        USER   FD      TYPE  DEVICE SIZE/OFF    NODE NAME
+ddb1c9  16226 andre.souto  cwd       DIR   253,2     4096 2883661 /home/andre.souto/Downloads
+ddb1c9  16226 andre.souto  rtd       DIR   253,0     4096       2 /
+ddb1c9  16226 andre.souto  txt       REG   253,2  7030256 2908013 /home/andre.souto/Downloads/ddb1c9
+ddb1c9  16226 andre.souto  mem       REG   253,0  2786472 1061298 /usr/lib64/libc-2.28.so
+ddb1c9  16226 andre.souto  mem       REG   253,0   258624 1061866 /usr/lib64/libpthread-2.28.so
+ddb1c9  16226 andre.souto  mem       REG   253,0   228072 1064568 /usr/lib64/ld-2.28.so
+ddb1c9  16226 andre.souto    0u      CHR   136,1      0t0       4 /dev/pts/1
+ddb1c9  16226 andre.souto    1u      CHR   136,1      0t0       4 /dev/pts/1
+ddb1c9  16226 andre.souto    2u      CHR   136,1      0t0       4 /dev/pts/1
+ddb1c9  16226 andre.souto    3u     IPv6 6518416      0t0     TCP *:8011 (LISTEN)    < - porta aberta para receber conexões
+ddb1c9  16226 andre.souto    4u  a_inode    0,13        0   11750 [eventpoll]
+
+
+$ curl -vs localhost:8011/desavio1
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 8011 (#0)
+> GET /desavio1 HTTP/1.1
+> Host: localhost:8011
+> User-Agent: curl/7.61.1
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Date: Wed, 13 Mar 2019 13:16:15 GMT
+< Content-Length: 9
+< Content-Type: text/plain; charset=utf-8
+< 
+* Connection #0 to host localhost left intact
+desafio1!
+-----------------------------------------------------------------------------------------------------
+
+## Binario da87fa
+
+- liguagem c 
+- kernel - 2.6.24 ubuntu 8.04 Hardy heron
+- Glibc 2.2.5
+- É um loop  que cria  fork, onde esses forks morrerem e esperam 10s  para iniciar novamente.
+
+ltrace -t ./da87fa 
+
+10:18:11 __libc_start_main([ "./da87fa" ] <unfinished ...>
+10:18:11 signal(SIGCHLD, 0x1)                                                                                                 = nil
+10:18:11 fork()                                                                                                                   = 21205
+10:18:11 fork()                                                                                                                   = 21206
+10:18:11 fork()                                                                                                                   = 21207
+10:18:11 fork()                                                                                                                   = 21208
+10:18:11 fork()                                                                                                                   = 21209
+10:18:11 fork()                                                                                                                   = 21210
+10:18:11 fork()                                                                                                                   = 21211
+10:18:11 fork()                                                                                                                   = 21212
+10:18:11 fork()                                                                                                                   = 21213
+10:18:11 fork()                                                                                                                   = 21214
+10:18:11 sleep(10)                                                                                                                = 0
+10:18:21 fork()                                                                                                                   = 21255
+10:18:21 fork()                                                                                                                   = 21256
+10:18:21 fork()                                                                                                                   = 21257
+10:18:21 fork()                                                                                                                   = 21258
+10:18:21 fork()                                                                                                                   = 21259
+10:18:21 fork()                                                                                                                   = 21260
+10:18:21 fork()                                                                                                                   = 21261
+10:18:21 fork()                                                                                                                   = 21262
+10:18:21 fork()                                                                                                                   = 21263
+10:18:21 fork()                                                                                                                   = 21264
+10:18:21 sleep(10)                                                                                                                = 0
+10:18:31 fork()                                                                                                                   = 21307
+10:18:31 fork()                                                                                                                   = 21308
+10:18:31 fork()                                                                                                                   = 21309
+10:18:31 fork()                                                                                                                   = 21310
+10:18:31 fork()                                                                                                                   = 21311
+10:18:31 fork()                                                                                                                   = 21312
+10:18:31 fork()                                                                                                                   = 21313
+10:18:31 fork()                                                                                                                   = 21314
+10:18:31 fork()                                                                                                                   = 21315
+10:18:31 fork()                                                                                                                   = 21316
+10:18:31 sleep(10)
+
+
+
+
+##  binario d3ea79
+
+- liguagem c 
+- kernel - 2.6.24 ubuntu 8.04 Hardy heron
+- Glibc 2.2.5
+- Escreve em um arquivo no diretorio /tmp com o nome do usuario que o executou, no arquivo cria um desenho para o jogo http://en.wikipedia.org/wiki/Conways_Game_of_Life
+
+
+# Utilizei o ltrace   para ver as trace das chamadas de bibliotecas 
+ 
+ ltrace -t ./d3ea79 
+
+09:40:01 __libc_start_main([ "./d3ea79" ] <unfinished ...>
+09:40:01 getenv("USER")                                                                                                           = "andre.souto"
+09:40:01 strncat(0x7fffbcaa62b0, 0x7fffbcaa72e5, 127, 0x7fffbcaa72e5)                                                             = 0x7fffbcaa62b0
+09:40:01 unlink("/tmp/andre.souto")                                                                                               = -1
+09:40:01 getenv("USER")                                                                                                           = "andre.souto"
+09:40:01 strncat(0x7fffbcaa62b0, 0x7fffbcaa72e5, 127, 0x7fffbcaa72e5)                                                             = 0x7fffbcaa62b0
+09:40:01 fopen("/tmp/andre.souto", "a")                                                                                           = 0x1d9a260
+09:40:01 fwrite("Welcome to the Game of Life.\n", 1, 29, 0x1d9a260)                                                               = 29
+09:40:01 fprintf(0x1d9a260, "http://en.wikipedia.org/wiki/Con"...)                                                                = 53
+09:40:01 fclose(0x1d9a260)                                                                                                        = 0
+09:40:01 gettimeofday(0x7fffbcaa6300, nil)                                                                                        = 0
+09:40:01 srand(1997607786)                                                                                                        = <void>
+09:40:01 rand()                                                                                                                   = 306853903
+09:40:01 usleep(1000)                                                                                                             = <void>
+09:40:01 gettimeofday(0x7fffbcaa6300, nil)                                                                                        = 0
+09:40:01 srand(1997607789)                                                                                                        = <void>
+....
+
+09:40:02 fopen("/tmp/andre.souto", "a")                                                                                           = 0x1d9a260
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc('*', 0x1d9a260)                                                                                                    = 42
+09:40:02 fputc('*', 0x1d9a260)                                                                                                    = 42
+09:40:02 fputc('*', 0x1d9a260)                                                                                                    = 42
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+09:40:02 fputc(' ', 0x1d9a260)                                                                                                    = 32
+
+
+
+# resultado da execução do binario
+
+
+ cat /tmp/andre.souto |more
+Welcome to the Game of Life.
+http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+**       * *        
+*****              *
+  ***          **   
+    *          ***  
+    * * *       **  
+ * *   **     ***   
+  **** *     * *    
+  *    *    ***     
+            *       
+    *               
+       *            
+                    
+     * * *          
+   *** ***          
+   * * ***  **      
+   *         *      
+  **          ****  
+              *   * 
+               ***  
+                 *  
+---------------------- 
+
+
+
+## Binario cc9621
+
+- liguagem c 
+- kernel - 2.6.24 ubuntu 8.04 Hardy heron
+- Glibc 2.2.5
+- GCC: (Ubuntu 4.8.2-19ubuntu1) 4.8.2
+- concatena o diretorio /tmp/ com o nome do usuario (strcat("/tmp/", "andre.souto") )   ex. /tmp/user
+  a função _isoc99_scanf fica no aguardo de uma entrada de informação, quando a string é digita, essa string é salva no arquivo /tmp/andre.souto
+
+## # Utilizei o ltrace   para ver as trace das chamadas de bibliotecas 
+
+$ ltrace ./cc9621 
+
+
+__libc_start_main([ "./cc9621" ] <unfinished ...>
+getenv("USER")                                                                                                                    = "andre.souto"
+strcat("/tmp/", "andre.souto")                                                                                                    = "/tmp/andre.souto"
+__isoc99_scanf(0x4008b9, 0x7ffe2c9ae400, 0x6f7475, 0x6f732e6572646e61desafio1
+)                                                            = 1
+fopen("/tmp/andre.souto", "w")                                                                                                    = 0x1610670
+fputs("desafio1", 0x1610670)     < - string salva no arquivo                                                                     = 1
+fclose(0x1610670)                                                                                                                 = 0
++++ exited (status 0) +++
+
+## resultado
+$ cat /tmp/andre.souto 
+desafio1
+
+
+
+# com o strace podemos ver o binario aguardar o processo de input
+
+$ strace ./cc9621 
+
+execve("./cc9621", ["./cc9621"], 0x7ffd8fbd2b80 /* 55 vars */) = 0
+brk(NULL)                               = 0x1ccf000
+arch_prctl(0x3001 /* ARCH_??? */, 0x7fffb12ed880) = -1 EINVAL (Invalid argument)
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+
+...... informações omitidas
+
+brk(NULL)                               = 0x1cf0000
+
+read(0, Mexico         <--- ###### string adicionada (processo de input)
+
+"Mexico\n", 1024)               = 7
+ 
+openat(AT_FDCWD, "/tmp/andre.souto", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3  <-- abertura do arquivo
+fstat(3, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0
+write(3, "Mexico", 6)                   = 6                                <--- escrita da string no arquivo
+close(3)                                = 0
+lseek(0, -1, SEEK_CUR)                  = -1 ESPIPE (Illegal seek)
+exit_group(0)                           = ?
++++ exited with 0 +++
+
+
+## resultado da execução do Binario
+
+cat /tmp/andre.souto 
+Mexico
+
